@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chore Champions</title>
+<meta name="description" content="Family chore tracker for Kaleab, Delina and Adonay — daily check-ins, weekly rotation and weekly reports.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23d6553b'/%3E%3Cpath d='M9 17l5 5 9-11' stroke='white' stroke-width='3.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#fbf5ec; --surface:#fffdf9; --surface-2:#f4ebdf; --ink:#2a211b; --muted:#6c5f54; --line:#e8dccb;
+  --k1:#0b7f78; --k1-soft:#dff1ee; --k2:#c94a31; --k2-soft:#fbe5de; --k3:#a8680f; --k3-soft:#f8ead2;
+  --great:#2c7d47; --great-soft:#dcefe1; --ok:#946a07; --ok-soft:#f6ebcc; --redo:#b8402a; --redo-soft:#f8dfd8;
+  --missed:#c9bcac; --shadow:0 1px 2px rgba(60,40,20,.06),0 8px 24px -12px rgba(60,40,20,.18);
+  --radius:18px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#16120f; --surface:#211b16; --surface-2:#2b241e; --ink:#f4ece2; --muted:#b4a698; --line:#3b3229;
+    --k1:#4cc7bc; --k1-soft:#173634; --k2:#f08a6c; --k2-soft:#3d221b; --k3:#e7ac52; --k3-soft:#3a2c16;
+    --great:#6fcf8d; --great-soft:#1d3324; --ok:#e5bd4f; --ok-soft:#3a3016; --redo:#f2856c; --redo-soft:#40231c;
+    --missed:#4c4238; --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#16120f; --surface:#211b16; --surface-2:#2b241e; --ink:#f4ece2; --muted:#b4a698; --line:#3b3229;
+  --k1:#4cc7bc; --k1-soft:#173634; --k2:#f08a6c; --k2-soft:#3d221b; --k3:#e7ac52; --k3-soft:#3a2c16;
+  --great:#6fcf8d; --great-soft:#1d3324; --ok:#e5bd4f; --ok-soft:#3a3016; --redo:#f2856c; --redo-soft:#40231c;
+  --missed:#4c4238; --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Nunito,system-ui,sans-serif;
+  background-image:radial-gradient(var(--line) 1px,transparent 1px);background-size:22px 22px;min-height:100vh}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:1120px;margin:0 auto;padding:20px 16px 64px}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:700;margin:0;letter-spacing:-.01em}
+.muted{color:var(--muted)}
+/* header */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:46px;height:46px;border-radius:14px;background:var(--k2);color:#fff;display:grid;place-items:center;box-shadow:var(--shadow);transform:rotate(-6deg)}
+.brand h1{font-size:28px;line-height:1.1}
+.brand p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.top-actions{display:flex;gap:8px;align-items:center}
+.ghost{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px;display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14px;transition:.15s}
+.ghost:hover{border-color:var(--muted)}
+.ghost.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.icon-btn{width:40px;height:40px;padding:0;justify-content:center}
+/* season */
+.season{margin:18px 0 6px;display:flex;align-items:center;gap:14px;font-size:14px;color:var(--muted);font-weight:700}
+.season .bar{flex:1;height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.season .bar span{display:block;height:100%;background:linear-gradient(90deg,var(--k1),var(--k3),var(--k2));border-radius:99px;transition:width .6s}
+/* tabs */
+.tabs{display:flex;gap:6px;margin:16px 0 22px;background:var(--surface);border:1px solid var(--line);padding:5px;border-radius:999px;width:max-content;max-width:100%;overflow-x:auto;box-shadow:var(--shadow)}
+.tabs button{border:0;background:none;padding:9px 18px;border-radius:999px;font-weight:800;font-size:15px;color:var(--muted);white-space:nowrap;display:inline-flex;gap:7px;align-items:center}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+/* day nav */
+.daynav{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.daynav h2{font-size:30px}
+.daynav .sub{color:var(--muted);font-weight:700;font-size:14px;margin-top:2px}
+.navgrp{display:flex;gap:6px}
+/* cards */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media (max-width:960px){.grid3{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){.grid3{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;position:relative}
+.kid{--c:var(--k1);--cs:var(--k1-soft)}
+.kid[data-i="1"]{--c:var(--k2);--cs:var(--k2-soft)}
+.kid[data-i="2"]{--c:var(--k3);--cs:var(--k3-soft)}
+.kid-head{padding:18px 18px 14px;background:var(--cs);display:flex;align-items:center;gap:12px;position:relative}
+.avatar{width:48px;height:48px;border-radius:50%;background:var(--c);color:var(--surface);display:grid;place-items:center;font-family:Fraunces,serif;font-size:22px;font-weight:700;flex:none}
+.kid-head h3{font-size:22px}
+.kid-head .job{font-size:13px;font-weight:700;color:var(--c);display:flex;align-items:center;gap:5px}
+.mini-ring{margin-left:auto;position:relative;width:52px;height:52px;flex:none}
+.mini-ring b{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;font-weight:800}
+.tasks{list-style:none;margin:0;padding:6px 10px 12px}
+.task{display:flex;align-items:center;gap:12px;padding:12px 8px;border-bottom:1px dashed var(--line);flex-wrap:wrap}
+.task:last-child{border-bottom:0}
+.t-ico{width:40px;height:40px;border-radius:12px;background:var(--surface-2);display:grid;place-items:center;color:var(--c);flex:none;transition:.2s}
+.task.is-done .t-ico{background:var(--c);color:var(--surface)}
+.t-txt{flex:1;min-width:120px}
+.t-name{font-weight:800;line-height:1.25}
+.task.is-done .t-name{text-decoration:line-through;text-decoration-color:var(--c);text-decoration-thickness:2px}
+.t-sub{font-size:12.5px;color:var(--muted);font-weight:600}
+.t-act{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;margin-left:auto}
+.btn{border:0;border-radius:999px;padding:9px 16px;font-weight:800;font-size:14px;background:var(--c,var(--ink));color:var(--surface);display:inline-flex;align-items:center;gap:6px;transition:transform .12s, filter .15s;box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.btn:hover{filter:brightness(1.07)}
+.btn:active{transform:scale(.95)}
+.btn.small{padding:6px 12px;font-size:13px}
+.btn.plain{background:var(--surface-2);color:var(--ink);box-shadow:none}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:800;padding:5px 11px;border-radius:999px;background:var(--great-soft);color:var(--great)}
+.pill small{font-weight:600;opacity:.85}
+.pill.redo{background:var(--redo-soft);color:var(--redo)}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.seg{display:inline-flex;background:var(--surface-2);border-radius:999px;padding:3px;gap:2px}
+.seg button{border:0;background:none;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:800;color:var(--muted)}
+.seg button.on[data-q="great"]{background:var(--great);color:var(--surface)}
+.seg button.on[data-q="ok"]{background:var(--ok);color:var(--surface)}
+.seg button.on[data-q="redo"]{background:var(--redo);color:var(--surface)}
+.x{border:0;background:none;color:var(--muted);width:28px;height:28px;border-radius:50%;display:grid;place-items:center}
+.x:hover{background:var(--surface-2);color:var(--ink)}
+.qbadge{font-size:12px;font-weight:800;padding:3px 9px;border-radius:999px}
+.qbadge.great{background:var(--great-soft);color:var(--great)}
+.qbadge.ok{background:var(--ok-soft);color:var(--ok)}
+.notice{background:var(--surface);border:1px dashed var(--muted);border-radius:var(--radius);padding:22px;text-align:center;color:var(--muted);font-weight:700}
+.allstar{position:absolute;top:12px;right:12px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;background:var(--c);color:var(--surface);padding:3px 9px;border-radius:99px}
+/* report */
+.rep-top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.star-banner{display:flex;align-items:center;gap:14px;background:var(--ink);color:var(--bg);border-radius:var(--radius);padding:16px 20px;margin-bottom:18px;box-shadow:var(--shadow)}
+.star-banner .s{width:42px;height:42px;border-radius:50%;background:var(--k3);color:#fff;display:grid;place-items:center;flex:none}
+.star-banner b{font-family:Fraunces,serif;font-size:20px}
+.rep-body{padding:16px 18px 18px}
+.ring-row{display:flex;gap:16px;align-items:center}
+.ring{position:relative;width:96px;height:96px;flex:none}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-family:Fraunces,serif;font-size:24px}
+.verdict{font-family:Fraunces,serif;font-size:19px;line-height:1.2}
+.verdict-tag{display:inline-flex;gap:5px;align-items:center;font-size:12px;font-weight:800;padding:4px 10px;border-radius:99px;margin-top:6px}
+.verdict-tag.yes{background:var(--great-soft);color:var(--great)}
+.verdict-tag.no{background:var(--redo-soft);color:var(--redo)}
+.verdict-tag.na{background:var(--surface-2);color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:16px 0}
+.stat{background:var(--surface-2);border-radius:12px;padding:8px 6px;text-align:center}
+.stat b{display:block;font-size:20px;font-family:Fraunces,serif;line-height:1.2}
+.stat span{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.dgrid{display:grid;grid-template-columns:minmax(84px,1.3fr) repeat(7,1fr);gap:4px;align-items:center;font-size:12px}
+.dgrid .h{font-weight:800;color:var(--muted);text-align:center;font-size:11px}
+.dgrid .rl{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell{aspect-ratio:1;border-radius:7px;background:var(--surface-2);display:grid;place-items:center;max-height:30px;margin:0 auto;width:100%;max-width:30px}
+.cell.done,.cell.great{background:var(--great);color:var(--surface)}
+.cell.ok{background:var(--ok);color:var(--surface)}
+.cell.redo{background:var(--redo);color:var(--surface)}
+.cell.missed{background:transparent;border:2px dashed var(--missed)}
+.cell.future{background:transparent;border:1px solid var(--line)}
+.lrow{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);font-weight:700;font-size:14px}
+.notes{margin:12px 0 0;padding:0;list-style:none;font-size:13.5px;color:var(--muted);font-weight:600}
+.notes li{padding:3px 0;display:flex;gap:7px}
+.notes li::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--c);margin-top:8px;flex:none}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;font-weight:700;color:var(--muted);margin:16px 0 0}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend .cell{width:14px;height:14px;display:inline-block}
+.season-card{margin-top:22px;padding:20px}
+.season-card h3{font-size:22px;margin-bottom:4px}
+.srow{display:grid;grid-template-columns:90px 1fr 60px;gap:12px;align-items:center;padding:12px 0;border-bottom:1px dashed var(--line)}
+.srow:last-child{border-bottom:0}
+.srow .nm{font-weight:800;color:var(--c)}
+.bars{display:grid;grid-template-columns:repeat(13,1fr);gap:4px;height:44px;align-items:end}
+.bars i{display:block;background:var(--c);border-radius:4px 4px 2px 2px;min-height:3px;opacity:.9}
+.bars i.empty{background:var(--surface-2);height:100%!important;opacity:1}
+.bars i.cur{outline:2px solid var(--ink);outline-offset:1px}
+.srow .pct{font-family:Fraunces,serif;font-size:20px;text-align:right}
+/* schedule */
+.sched{width:100%;border-collapse:separate;border-spacing:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.sched th,.sched td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);font-size:14px}
+.sched tr:last-child td{border-bottom:0}
+.sched th{background:var(--surface-2);font-weight:800;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.sched tr.cur td{background:var(--surface-2)}
+.sched tr.cur td:first-child{box-shadow:inset 4px 0 0 var(--ink)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:13px;padding:5px 10px;border-radius:99px;background:var(--cs);color:var(--c)}
+.chip.r0{--c:var(--k1);--cs:var(--k1-soft)} .chip.r1{--c:var(--k2);--cs:var(--k2-soft)} .chip.r2{--c:var(--k3);--cs:var(--k3-soft)}
+.wk{font-weight:800}
+.wk small{display:block;color:var(--muted);font-weight:600}
+.tablewrap{overflow-x:auto}
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+@media (max-width:760px){.rules{grid-template-columns:1fr}}
+.rule{padding:16px 18px;display:flex;gap:12px;align-items:flex-start}
+.rule .t-ico{color:var(--ink)}
+.rule b{display:block}
+.rule span{font-size:13.5px;color:var(--muted);font-weight:600}
+/* settings */
+.settings{max-width:640px;padding:22px;display:grid;gap:18px}
+.field label{display:block;font-weight:800;margin-bottom:6px}
+.field p{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.field input,.field select{width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--line);background:var(--bg)}
+.row-btns{display:flex;gap:8px;flex-wrap:wrap}
+.danger{--c:var(--redo)}
+/* toast, confetti, dialog */
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(120px);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:999px;font-weight:800;box-shadow:var(--shadow);transition:transform .35s cubic-bezier(.2,1.4,.4,1);z-index:50;max-width:calc(100% - 32px);text-align:center}
+#toast.show{transform:translateX(-50%) translateY(0)}
+.confetti{position:fixed;width:9px;height:9px;border-radius:2px;pointer-events:none;z-index:60;animation:fly .9s ease-out forwards}
+@keyframes fly{to{transform:translate(var(--dx),var(--dy)) rotate(var(--r));opacity:0}}
+dialog{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);padding:24px;box-shadow:var(--shadow);width:min(360px,calc(100% - 32px))}
+dialog::backdrop{background:rgba(20,14,10,.45)}
+dialog h3{font-size:22px;margin-bottom:6px}
+dialog input{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);font-size:20px;letter-spacing:.3em;text-align:center;margin:12px 0}
+dialog menu{display:flex;gap:8px;justify-content:flex-end;padding:0;margin:0}
+.err{color:var(--redo);font-size:13px;font-weight:700;min-height:18px}
+@keyframes pop{0%{transform:scale(.6)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+.pop{animation:pop .35s ease-out}
+@media (max-width:520px){
+  .tabs{width:100%}
+  .tabs button{padding:8px 11px;font-size:13.5px;flex:1;justify-content:center}
+  .brand h1{font-size:24px}
+  .daynav h2,.rep-top h2{font-size:26px!important}
+  .sched th,.sched td{padding:10px 8px;font-size:13px}
+  .sched .chip{font-size:12px;padding:4px 8px}
+  .sched .chip svg{display:none}
+  .srow{grid-template-columns:64px 1fr 44px;gap:8px}
+  .stats .stat b{font-size:17px}
+}
+@media print{
+  body{background:#fff}.tabs,.top-actions,.season,.navgrp,#toast{display:none!important}
+  .card{box-shadow:none;break-inside:avoid}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <div class="logo"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></div>
+      <div><h1>Chore Champions</h1><p>Kaleab · Delina · Adonay</p></div>
+    </div>
+    <div class="top-actions">
+      <button class="ghost icon-btn" id="themeBtn" title="Switch light / dark" aria-label="Switch light or dark theme"></button>
+      <button class="ghost" id="parentBtn"></button>
+    </div>
+  </header>
+
+  <div class="season"><span id="seasonText"></span><div class="bar"><span id="seasonBar"></span></div><span id="seasonEnd"></span></div>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-act="view" data-v="today">Today</button>
+    <button role="tab" data-act="view" data-v="report">Weekly report</button>
+    <button role="tab" data-act="view" data-v="schedule">Rotation</button>
+    <button role="tab" data-act="view" data-v="settings">Settings</button>
+  </nav>
+
+  <main id="app"></main>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<dialog id="pinDlg">
+  <form method="dialog" id="pinForm">
+    <h3>Parent mode</h3>
+    <p class="muted" style="margin:0">Enter the parent PIN to review chores.</p>
+    <input id="pinIn" type="password" inputmode="numeric" autocomplete="off" maxlength="8">
+    <div class="err" id="pinErr"></div>
+    <menu><button class="btn plain" value="cancel" formnovalidate>Cancel</button><button class="btn" value="ok" style="--c:var(--ink)">Unlock</button></menu>
+  </form>
+</dialog>
+
+<input type="file" id="importFile" accept="application/json" hidden>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- config ---------- */
+const KIDS = [
+  {id:'kaleab', name:'Kaleab'},
+  {id:'delina', name:'Delina'},
+  {id:'adonay', name:'Adonay'}
+];
+const DAILY = [
+  {id:'room', name:'Clean my room', short:'Own room', icon:'bed'},
+  {id:'bath', name:'Clean my bathroom', short:'Bathroom', icon:'bath'}
+];
+const ROT = [
+  {id:'kitchen', name:'Kitchen & dishes', icon:'dish'},
+  {id:'living',  name:'Clean the living room', short:'Living room', icon:'sofa'},
+  {id:'floors',  name:'Sweep & mop the house', short:'Sweep & mop', icon:'broom'}
+];
+const LAUNDRY = {id:'laundry', name:'Do my laundry', icon:'shirt'};
+const WEEKS = 13;               // about 3 months
+const PTS = {done:1, great:1, ok:0.8, redo:0.3};
+const STORE = 'chore-champions-v1';
+
+const ICONS = {
+  bed:'<path d="M3 19v-8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v8M3 15h18M7 9V7a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2"/>',
+  bath:'<path d="M3 12h18v2a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5v-2zM6 12V6a2 2 0 0 1 4 0M7 19l-1 2M17 19l1 2"/>',
+  dish:'<circle cx="13" cy="13" r="7"/><circle cx="13" cy="13" r="3"/><path d="M3 3v5a2 2 0 0 0 2 2v11"/>',
+  sofa:'<path d="M5 11V8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v3M3 13a2 2 0 0 1 4 0v2h10v-2a2 2 0 0 1 4 0v4H3zM5 17v2M19 17v2"/>',
+  broom:'<path d="M15 3l-4 10M7 13h8l2 8H5zM9 17v4M13 17v4"/>',
+  shirt:'<path d="M8 4L3 7l2 4 3-1v10h8V10l3 1 2-4-5-3a4 4 0 0 1-8 0z"/>',
+  check:'<path d="M5 12l5 5 9-10"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  unlock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/>',
+  left:'<path d="M15 6l-6 6 6 6"/>', right:'<path d="M9 6l6 6-6 6"/>',
+  star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>', redo:'<path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon:'<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>',
+  print:'<path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/>'
+};
+const svg = (n,s=20) => `<svg viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
+
+/* ---------- dates ---------- */
+const pad = n => String(n).padStart(2,'0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y,m-1,d); };
+const addDays = (s,n) => { const d = parse(s); d.setDate(d.getDate()+n); return ymd(d); };
+const diffDays = (a,b) => Math.round((parse(b)-parse(a))/86400000);
+const todayStr = () => ymd(new Date());
+const mondayOf = s => { const d = parse(s); d.setDate(d.getDate()-((d.getDay()+6)%7)); return ymd(d); };
+const fmt = (s,o) => parse(s).toLocaleDateString('en-US',o);
+const fmtShort = s => fmt(s,{month:'short',day:'numeric'});
+const fmtTime = t => new Date(t).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- state ---------- */
+function freshState(){ return {settings:{start:mondayOf(todayStr()), laundry:'weekly', pin:''}, checks:{}}; }
+function load(){
+  try{ const r = JSON.parse(localStorage.getItem(STORE)); if(r && r.settings && r.checks) return r; }catch(e){}
+  return freshState();
+}
+function save(){ try{ localStorage.setItem(STORE, JSON.stringify(S)); }catch(e){} }
+let S = load(); save();
+let ui = {view:'today', date:todayStr(), week:null, parent:false};
+try{ const v = localStorage.getItem(STORE+'-view'); if(v) ui.view = v; }catch(e){}
+
+const start = () => S.settings.start;
+const endDate = () => addDays(start(), WEEKS*7-1);
+const weekOf = d => Math.floor(diffDays(start(), d)/7);
+const inSeason = d => { const n = diffDays(start(), d); return n >= 0 && n < WEEKS*7; };
+const clampWeek = w => Math.max(0, Math.min(WEEKS-1, w));
+const curWeek = () => clampWeek(weekOf(todayStr()));
+const rotFor = (i,w) => ROT[((i+w)%3+3)%3];
+const key = (d,kid,t) => `${d}|${kid}|${t}`;
+const biweekly = () => S.settings.laundry === 'biweekly';
+const laundryPeriod = w => biweekly() ? Math.floor(w/2) : w;
+const laundryKey = (kid,w) => `L-${biweekly()?'b':'w'}${laundryPeriod(w)}|${kid}`;
+const laundryDueWeek = w => !biweekly() || w%2===1 || w===WEEKS-1;
+const laundryDeadline = w => {
+  if(!biweekly()) return addDays(start(), w*7+6);
+  const p = laundryPeriod(w); return addDays(start(), Math.min(p*2+1, WEEKS-1)*7+6);
+};
+
+/* ---------- UI helpers ---------- */
+const $ = s => document.querySelector(s);
+const app = $('#app');
+let toastT;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2200); }
+function confetti(x,y){
+  const cols=['var(--k1)','var(--k2)','var(--k3)','var(--great)'];
+  for(let i=0;i<22;i++){
+    const p=document.createElement('span'); p.className='confetti';
+    const a=Math.random()*Math.PI*2, r=50+Math.random()*90;
+    p.style.cssText=`left:${x}px;top:${y}px;background:${cols[i%4]};--dx:${Math.cos(a)*r}px;--dy:${Math.sin(a)*r-40}px;--r:${Math.random()*540}deg`;
+    document.body.appendChild(p); setTimeout(()=>p.remove(),950);
+  }
+}
+function ring(pct,size,stroke,color){
+  const r=(size-stroke)/2, c=2*Math.PI*r, v=pct==null?0:Math.max(0,Math.min(1,pct));
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" style="transform:rotate(-90deg)"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="var(--surface-2)" stroke-width="${stroke}"/><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-v)}" style="transition:stroke-dashoffset .6s"/></svg>`;
+}
+
+/* ---------- chrome ---------- */
+function renderChrome(){
+  const T=todayStr(), n=diffDays(start(),T);
+  const pct=Math.max(0,Math.min(1,(n+1)/(WEEKS*7)));
+  $('#seasonBar').style.width=(pct*100)+'%';
+  $('#seasonText').textContent = n<0 ? `Starts ${fmtShort(start())}` : n>=WEEKS*7 ? 'Season complete' : `Week ${weekOf(T)+1} of ${WEEKS}`;
+  $('#seasonEnd').textContent = `${fmtShort(start())} – ${fmtShort(endDate())}`;
+  document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected', b.dataset.v===ui.view));
+  const pb=$('#parentBtn'); pb.className='ghost'+(ui.parent?' on':'');
+  pb.innerHTML = ui.parent ? `${svg('unlock',16)} Parent mode on` : `${svg('lock',16)} Parent mode`;
+  const dark = document.documentElement.dataset.theme ? document.documentElement.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  $('#themeBtn').innerHTML = svg(dark?'sun':'moon',18);
+}
+
+/* ---------- TODAY ---------- */
+function itemsFor(i,D){
+  const kid=KIDS[i], w=weekOf(D), rot=rotFor(i,w);
+  const lSub = biweekly() ? `Once every 2 weeks · by ${fmtShort(laundryDeadline(w))}` : `Once this week · by ${fmtShort(laundryDeadline(w))}`;
+  return [
+    {k:key(D,kid.id,'room'), t:DAILY[0], sub:'Every day'},
+    {k:key(D,kid.id,'bath'), t:DAILY[1], sub:'Every day'},
+    {k:key(D,kid.id,'rot'),  t:rot, sub:'Every day · your job this week'},
+    {k:laundryKey(kid.id,w), t:LAUNDRY, sub:lSub, laundry:true}
+  ];
+}
+function actionHTML(it,i,D){
+  const r=S.checks[it.k], T=todayStr();
+  if(!r){
+    if(D>T) return `<span class="t-sub">Upcoming</span>`;
+    return `<button class="btn" data-act="checkin" data-k="${it.k}" data-i="${i}" data-d="${D}" data-n="${esc(it.t.name)}">${svg('check',16)} Check in</button>`;
+  }
+  const when = (it.laundry && r.d ? fmt(r.d,{weekday:'short'})+' ' : '') + fmtTime(r.t);
+  let h = r.q==='redo'
+    ? `<span class="pill redo">${svg('redo',14)} Redo asked</span>`
+    : `<span class="pill ${r.q==='ok'?'ok':''}">${svg('check',14)} Done <small>${when}</small></span>`;
+  if(ui.parent){
+    h += `<span class="seg" role="group" aria-label="Review">${['great','ok','redo'].map(q=>`<button data-act="review" data-k="${it.k}" data-q="${q}" class="${r.q===q?'on':''}">${q==='great'?'Great':q==='ok'?'Okay':'Redo'}</button>`).join('')}</span>`;
+    h += `<button class="x" data-act="undo" data-k="${it.k}" title="Remove check-in" aria-label="Remove check-in">${svg('x',16)}</button>`;
+  } else if(r.q==='redo'){
+    h += `<button class="btn small" data-act="redoin" data-k="${it.k}" data-i="${i}" data-n="${esc(it.t.name)}">Fixed it!</button>`;
+  } else if(r.q){
+    h += `<span class="qbadge ${r.q}">${r.q==='great'?'★ Great job':'Okay'}</span>`;
+  } else {
+    h += `<button class="x" data-act="undo" data-k="${it.k}" title="Undo" aria-label="Undo check-in">${svg('x',16)}</button>`;
+  }
+  return h;
+}
+function renderToday(){
+  const D=ui.date, T=todayStr();
+  const head = `<div class="daynav">
+    <div><h2>${D===T?'Today':fmt(D,{weekday:'long'})}</h2>
+    <div class="sub">${fmt(D,{weekday:'long',month:'long',day:'numeric'})}${inSeason(D)?` · Week ${weekOf(D)+1}`:''}</div></div>
+    <div class="navgrp">
+      <button class="ghost icon-btn" data-act="day" data-n="-1" aria-label="Previous day">${svg('left',18)}</button>
+      ${D!==T?`<button class="ghost" data-act="gotoday">Today</button>`:''}
+      <button class="ghost icon-btn" data-act="day" data-n="1" aria-label="Next day">${svg('right',18)}</button>
+    </div></div>`;
+  if(!inSeason(D)){
+    app.innerHTML = head + `<div class="notice">${D<start()?`The chore season starts on ${fmt(start(),{weekday:'long',month:'long',day:'numeric'})}.`:`The 3-month season ended on ${fmt(endDate(),{month:'long',day:'numeric'})}. Start a new one in Settings.`}</div>`;
+    return;
+  }
+  const cards = KIDS.map((kid,i)=>{
+    const items=itemsFor(i,D);
+    const done=items.filter(it=>S.checks[it.k]).length;
+    const all = done===items.length;
+    return `<article class="card kid" data-i="${i}">
+      <div class="kid-head">
+        <div class="avatar">${kid.name[0]}</div>
+        <div><h3>${kid.name}</h3><div class="job">${svg(rotFor(i,weekOf(D)).icon,14)} ${rotFor(i,weekOf(D)).name}</div></div>
+        <div class="mini-ring">${ring(done/items.length,52,6,'var(--c)')}<b>${done}/${items.length}</b></div>
+      </div>
+      <ul class="tasks">${items.map(it=>`<li class="task ${S.checks[it.k]?'is-done':''}">
+        <div class="t-ico">${svg(it.t.icon,22)}</div>
+        <div class="t-txt"><div class="t-name">${it.t.name}</div><div class="t-sub">${it.sub}</div></div>
+        <div class="t-act">${actionHTML(it,i,D)}</div></li>`).join('')}</ul>
+      ${all?`<span class="allstar">All done</span>`:''}
+    </article>`;
+  }).join('');
+  app.innerHTML = head + `<div class="grid3">${cards}</div>
+    ${ui.parent?'':`<p class="muted" style="text-align:center;font-size:13.5px;margin-top:22px">Parents: turn on <b>Parent mode</b> to mark each chore Great, Okay or Redo.</p>`}`;
+}
+
+/* ---------- REPORT ---------- */
+function weekStats(i,w){
+  const kid=KIDS[i], T=todayStr();
+  const days=[...Array(7)].map((_,j)=>addDays(start(), w*7+j));
+  const rows=[{id:'room',name:DAILY[0].short},{id:'bath',name:DAILY[1].short},{id:'rot',name:rotFor(i,w).short||rotFor(i,w).name}];
+  const s={exp:0,done:0,proper:0,redo:0,missed:0,pts:0,rows:[],days,missedBy:[]};
+  const tally=c=>{ s.done++; s.pts+=PTS[c.q||'done']; if(c.q==='redo') s.redo++; else s.proper++; };
+  rows.forEach(r=>{
+    let miss=0;
+    const cells=days.map(D=>{
+      if(D>T) return 'future';
+      s.exp++;
+      const c=S.checks[key(D,kid.id,r.id)];
+      if(!c){ s.missed++; miss++; return 'missed'; }
+      tally(c); return c.q||'done';
+    });
+    if(miss) s.missedBy.push(`${r.name}: missed ${miss} day${miss>1?'s':''}`);
+    s.rows.push({name:r.name,cells});
+  });
+  const lc=S.checks[laundryKey(kid.id,w)], due=laundryDueWeek(w);
+  if(lc){ s.laundry=lc.q||'done'; if(due){ s.exp++; tally(lc); } }
+  else if(due && days[6]<T){ s.exp++; s.missed++; s.laundry='missed'; s.missedBy.push('Laundry was not done'); }
+  else s.laundry = days[0]>T ? 'future' : due ? 'pending' : 'notdue';
+  s.pct = s.exp ? s.pts/s.exp : null;
+  return s;
+}
+function verdict(s,name){
+  if(s.pct==null) return {t:'Week not started yet', tag:'na', label:'Not started'};
+  const p=s.pct;
+  if(p>=0.9 && s.redo===0) return {t:`Superstar week, ${name}!`, tag:'yes', label:'Done properly'};
+  if(p>=0.8) return {t:`Great work — chores done properly.`, tag:'yes', label:'Done properly'};
+  if(p>=0.6) return {t:`Almost there — a few things slipped.`, tag:'no', label:'Not quite'};
+  return {t:`Needs to do better next week.`, tag:'no', label:'Not done properly'};
+}
+const laundryLabel = st => ({done:'Done',great:'Done · Great',ok:'Done · Okay',redo:'Redo asked',missed:'Missed',pending:'Still to do',notdue:'Due next week',future:'—'})[st];
+function renderReport(){
+  if(ui.week==null) ui.week=curWeek();
+  const w=ui.week, ws=addDays(start(),w*7), we=addDays(ws,6);
+  const stats=KIDS.map((k,i)=>weekStats(i,w));
+  let best=-1; stats.forEach((s,i)=>{ if(s.pct!=null && s.pct>=0.8 && (best<0 || s.pct>stats[best].pct)) best=i; });
+  const cards=KIDS.map((kid,i)=>{
+    const s=stats[i], v=verdict(s,kid.name), pct=s.pct==null?'–':Math.round(s.pct*100)+'%';
+    const notes=[...s.missedBy];
+    if(s.redo) notes.push(`${s.redo} chore${s.redo>1?'s':''} needed a redo`);
+    if(s.pct!=null && !notes.length) notes.push('Every chore checked in on time');
+    return `<article class="card kid" data-i="${i}">
+      <div class="kid-head"><div class="avatar">${kid.name[0]}</div>
+        <div><h3>${kid.name}</h3><div class="job">${svg(rotFor(i,w).icon,14)} ${rotFor(i,w).name}</div></div></div>
+      <div class="rep-body">
+        <div class="ring-row"><div class="ring">${ring(s.pct,96,10,'var(--c)')}<b>${pct}</b></div>
+          <div><div class="verdict">${v.t}</div><span class="verdict-tag ${v.tag}">${v.tag==='yes'?svg('check',13):''}${v.label}</span></div></div>
+        <div class="stats">
+          <div class="stat"><b>${s.done}/${s.exp}</b><span>Done</span></div>
+          <div class="stat"><b>${s.proper}</b><span>Proper</span></div>
+          <div class="stat"><b>${s.redo}</b><span>Redo</span></div>
+          <div class="stat"><b>${s.missed}</b><span>Missed</span></div>
+        </div>
+        <div class="dgrid"><span></span>${s.days.map(d=>`<span class="h">${fmt(d,{weekday:'narrow'})}</span>`).join('')}
+          ${s.rows.map(r=>`<span class="rl" title="${esc(r.name)}">${esc(r.name)}</span>${r.cells.map(c=>`<span class="cell ${c}">${['done','great','ok'].includes(c)?svg('check',13):c==='redo'?svg('redo',12):''}</span>`).join('')}`).join('')}
+        </div>
+        <div class="lrow"><span>${svg('shirt',16)} Laundry</span><span class="${['missed','redo'].includes(s.laundry)?'':'muted'}" style="${s.laundry==='missed'||s.laundry==='redo'?'color:var(--redo)':''}">${laundryLabel(s.laundry)}</span></div>
+        <ul class="notes">${notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>
+      </div></article>`;
+  }).join('');
+
+  // season summary
+  const cw=curWeek();
+  const season=KIDS.map((kid,i)=>{
+    let pts=0,exp=0;
+    const bars=[...Array(WEEKS)].map((_,x)=>{
+      const s=weekStats(i,x); pts+=s.pts; exp+=s.exp;
+      return s.pct==null?`<i class="empty" title="Week ${x+1}"></i>`:`<i class="${x===cw?'cur':''}" style="height:${Math.max(4,s.pct*100)}%" title="Week ${x+1}: ${Math.round(s.pct*100)}%"></i>`;
+    }).join('');
+    return `<div class="srow kid" data-i="${i}"><span class="nm">${kid.name}</span><div class="bars">${bars}</div><span class="pct">${exp?Math.round(pts/exp*100)+'%':'–'}</span></div>`;
+  }).join('');
+
+  app.innerHTML = `<div class="rep-top">
+      <div><h2 style="font-size:30px">Week ${w+1} report</h2><div class="muted" style="font-weight:700;font-size:14px">${fmt(ws,{weekday:'short',month:'short',day:'numeric'})} – ${fmt(we,{weekday:'short',month:'short',day:'numeric'})}${w===cw && todayStr()<=we && todayStr()>=ws?' · in progress':''}</div></div>
+      <div class="navgrp">
+        <button class="ghost icon-btn" data-act="week" data-n="-1" ${w<=0?'disabled':''} aria-label="Previous week">${svg('left',18)}</button>
+        ${w!==cw?`<button class="ghost" data-act="thisweek">This week</button>`:''}
+        <button class="ghost icon-btn" data-act="week" data-n="1" ${w>=WEEKS-1?'disabled':''} aria-label="Next week">${svg('right',18)}</button>
+        <button class="ghost icon-btn" data-act="print" title="Print report" aria-label="Print report">${svg('print',18)}</button>
+      </div></div>
+    ${best>=0?`<div class="star-banner"><div class="s">${svg('star',22)}</div><div><b>${KIDS[best].name} is star of the week</b><div style="opacity:.8;font-size:14px;font-weight:600">${Math.round(stats[best].pct*100)}% of chores done properly</div></div></div>`:''}
+    <div class="grid3">${cards}</div>
+    <div class="legend">
+      <span><i class="cell great"></i> Done</span><span><i class="cell ok"></i> Okay</span>
+      <span><i class="cell redo"></i> Redo</span><span><i class="cell missed"></i> Missed</span><span><i class="cell future"></i> Upcoming</span>
+    </div>
+    <section class="card season-card"><h3>3-month progress</h3>
+      <p class="muted" style="margin:0 0 8px;font-size:14px;font-weight:600">Each bar is one week. Score = chores done, weighted by your review (Great 100%, Okay 80%, Redo 30%).</p>
+      ${season}</section>`;
+}
+
+/* ---------- SCHEDULE ---------- */
+function renderSchedule(){
+  const cw=curWeek(), T=todayStr();
+  const rows=[...Array(WEEKS)].map((_,w)=>{
+    const ws=addDays(start(),w*7), we=addDays(ws,6), isCur = T>=ws && T<=we;
+    const laundry = biweekly() ? (w%2===0 ? 'Laundry (2-week window starts)' : 'Laundry due') : 'Laundry due';
+    return `<tr class="${isCur?'cur':''}"><td class="wk">Week ${w+1}<small>${fmtShort(ws)} – ${fmtShort(we)}</small></td>
+      ${KIDS.map((k,i)=>{ const r=rotFor(i,w); const ri=ROT.indexOf(r); return `<td><span class="chip r${ri}">${svg(r.icon,14)} ${r.short||r.name}</span></td>`; }).join('')}
+      <td class="muted" style="font-weight:600">${laundry}</td></tr>`;
+  }).join('');
+  app.innerHTML = `<div class="rules">
+      <div class="card rule"><div class="t-ico">${svg('bed',22)}</div><div><b>Every day, everyone</b><span>Clean your own room and bathroom.</span></div></div>
+      <div class="card rule"><div class="t-ico">${svg('broom',22)}</div><div><b>Every day, rotating job</b><span>Kitchen & dishes, living room, or sweep & mop — switches every week.</span></div></div>
+      <div class="card rule"><div class="t-ico">${svg('shirt',22)}</div><div><b>Laundry</b><span>${biweekly()?'Once every 2 weeks.':'Once a week.'} Change this in Settings.</span></div></div>
+    </div>
+    <div class="tablewrap"><table class="sched"><thead><tr><th>Week</th>${KIDS.map(k=>`<th>${k.name}</th>`).join('')}<th>Laundry</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+/* ---------- SETTINGS ---------- */
+function renderSettings(){
+  if(!ui.parent){
+    app.innerHTML = `<div class="notice">Settings are for parents. Turn on <b>Parent mode</b> (top right) to change them.</div>`;
+    return;
+  }
+  app.innerHTML = `<form class="card settings" id="setForm">
+    <h2 style="font-size:26px">Settings</h2>
+    <div class="field"><label for="sStart">Season start date</label><input type="date" id="sStart" value="${start()}">
+      <p>The season runs ${WEEKS} weeks (about 3 months). Rotation switches every 7 days from this date — a Monday works best.</p></div>
+    <div class="field"><label for="sLaundry">Laundry</label><select id="sLaundry">
+      <option value="weekly" ${!biweekly()?'selected':''}>Once a week</option>
+      <option value="biweekly" ${biweekly()?'selected':''}>Once every 2 weeks</option></select></div>
+    <div class="field"><label for="sPin">Parent PIN</label><input id="sPin" type="password" inputmode="numeric" maxlength="8" placeholder="Leave empty for no PIN" value="${esc(S.settings.pin)}">
+      <p>Kids can check in without it. The PIN is needed to review chores and change settings.</p></div>
+    <div class="row-btns"><button class="btn" type="submit" style="--c:var(--ink)">Save settings</button></div>
+    <hr style="border:0;border-top:1px dashed var(--line);width:100%;margin:4px 0">
+    <div class="field"><label>Backup</label><p style="margin:0 0 10px">Check-ins are saved in this browser only. Export a backup now and then, or to move to another device.</p>
+      <div class="row-btns"><button type="button" class="btn plain" data-act="export">Export backup</button><button type="button" class="btn plain" data-act="import">Import backup</button>
+      <button type="button" class="btn danger" data-act="reset">Erase all check-ins</button></div></div>
+  </form>`;
+}
+
+/* ---------- render ---------- */
+function render(){
+  renderChrome();
+  ({today:renderToday, report:renderReport, schedule:renderSchedule, settings:renderSettings})[ui.view]();
+}
+
+/* ---------- parent mode ---------- */
+function askPin(){
+  return new Promise(res=>{
+    const d=$('#pinDlg'), inp=$('#pinIn'); inp.value=''; $('#pinErr').textContent='';
+    const close=()=>{ d.removeEventListener('close',close); res(d.returnValue==='ok' ? inp.value : null); };
+    d.addEventListener('close',close);
+    try{ d.showModal(); }catch(e){ res(window.prompt('Parent PIN')); return; }
+    setTimeout(()=>inp.focus(),30);
+  });
+}
+async function toggleParent(){
+  if(ui.parent){ ui.parent=false; render(); return; }
+  if(S.settings.pin){
+    const p=await askPin(); if(p==null) return;
+    if(p!==S.settings.pin){ toast('Wrong PIN'); return; }
+  }
+  ui.parent=true; toast('Parent mode on — review away'); render();
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', e=>{
+  const b=e.target.closest('[data-act]'); if(!b || b.disabled) return;
+  const a=b.dataset.act;
+  if(a==='view'){ ui.view=b.dataset.v; try{localStorage.setItem(STORE+'-view',ui.view)}catch(err){} render(); return; }
+  if(a==='checkin'){
+    const i=+b.dataset.i;
+    S.checks[b.dataset.k]={t:Date.now(), d:b.dataset.d}; save();
+    const r=b.getBoundingClientRect(); confetti(r.left+r.width/2, r.top+r.height/2);
+    const cheers=['Nice work','Way to go','Awesome','Great job','You rock'];
+    toast(`${cheers[Math.floor(Math.random()*cheers.length)]}, ${KIDS[i].name}! ${b.dataset.n} ✓`);
+    render(); return;
+  }
+  if(a==='redoin'){
+    const c=S.checks[b.dataset.k]; if(c){ c.t=Date.now(); delete c.q; c.redone=true; save(); }
+    toast(`Thanks ${KIDS[+b.dataset.i].name}! A parent will check it again.`); render(); return;
+  }
+  if(a==='undo'){
+    if(!ui.parent && !confirm('Undo this check-in?')) return;
+    delete S.checks[b.dataset.k]; save(); render(); return;
+  }
+  if(a==='review'){
+    const c=S.checks[b.dataset.k]; if(!c) return;
+    c.q = c.q===b.dataset.q ? undefined : b.dataset.q; if(!c.q) delete c.q; save(); render(); return;
+  }
+  if(a==='day'){ ui.date=addDays(ui.date,+b.dataset.n); render(); return; }
+  if(a==='gotoday'){ ui.date=todayStr(); render(); return; }
+  if(a==='week'){ ui.week=clampWeek(ui.week+ +b.dataset.n); render(); return; }
+  if(a==='thisweek'){ ui.week=curWeek(); render(); return; }
+  if(a==='print'){ window.print(); return; }
+  if(a==='export'){
+    const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+    const u=URL.createObjectURL(blob), l=document.createElement('a');
+    l.href=u; l.download=`chore-champions-backup-${todayStr()}.json`; document.body.appendChild(l); l.click(); l.remove();
+    setTimeout(()=>URL.revokeObjectURL(u),1000); toast('Backup downloaded'); return;
+  }
+  if(a==='import'){ $('#importFile').click(); return; }
+  if(a==='reset'){
+    if(confirm('Erase ALL check-ins and reviews? Export a backup first if you might want them.')){ S.checks={}; save(); toast('All check-ins erased'); render(); }
+    return;
+  }
+});
+$('#parentBtn').addEventListener('click', toggleParent);
+$('#themeBtn').addEventListener('click', ()=>{
+  const root=document.documentElement;
+  const dark = root.dataset.theme ? root.dataset.theme==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  root.dataset.theme = dark ? 'light' : 'dark';
+  try{ localStorage.setItem(STORE+'-theme', root.dataset.theme); }catch(e){}
+  renderChrome();
+});
+try{ const th=localStorage.getItem(STORE+'-theme'); if(th) document.documentElement.dataset.theme=th; }catch(e){}
+
+document.addEventListener('submit', e=>{
+  if(e.target.id!=='setForm') return;
+  e.preventDefault();
+  const st=$('#sStart').value;
+  if(st) S.settings.start=st;
+  S.settings.laundry=$('#sLaundry').value;
+  S.settings.pin=$('#sPin').value.trim();
+  save(); ui.week=null; toast('Settings saved'); render();
+});
+$('#importFile').addEventListener('change', e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{ const d=JSON.parse(rd.result); if(!d.settings||!d.checks) throw 0; S=d; save(); ui.week=null; toast('Backup restored'); render(); }
+    catch(err){ toast('That file is not a Chore Champions backup'); }
+    e.target.value='';
+  };
+  rd.readAsText(f);
+});
+// refresh at midnight / when returning to the tab
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) renderChrome(); });
+
+render();
+})();
+</script>
+</body>
+</html>
